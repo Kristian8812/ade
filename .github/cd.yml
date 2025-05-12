@@ -1,0 +1,28 @@
+name: CD C++
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build Docker image
+      run: docker build -t stack_program .
+
+    - name: Login to Heroku Container Registry
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+
+    - name: Push Docker image to Heroku
+      run: docker tag stack_program registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web &&
+           docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
+
+    - name: Release Heroku app
+      run: heroku container:release web --app ${{ secrets.HEROKU_APP_NAME }}
