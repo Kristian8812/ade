@@ -1,0 +1,26 @@
+name: CI C++
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Environment
+      run: |
+        brew install cmake # untuk MacOS, jika perlu
+        sudo apt update
+        sudo apt install g++ -y
+
+    - name: Compile Program
+      run: g++ -o app ./src/main.cpp
+
+    - name: Run Program
+      run: ./app
